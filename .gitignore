@@ -1,7 +1,36 @@
-.DS_Store
+# Dart / Flutter
 .dart_tool/
-
 .packages
 .pub/
-.idea/
+.pub-cache/
 build/
+pubspec.lock          # a library must not pin its consumers' resolution
+!example/pubspec.lock
+
+# Generated plugin registration
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Local machine state
+local.properties
+**/android/local.properties
+.gradle/
+*.iml
+*.iws
+.idea/
+.vscode/
+
+# iOS / macOS
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/macos/Pods/
+**/macos/Flutter/GeneratedPluginRegistrant.swift
+**/xcuserdata/
+**/DerivedData/
+*.xcworkspace/xcuserdata/
+
+.DS_Store

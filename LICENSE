@@ -1,6 +1,13 @@
 MIT License
 
-Raj Yadav (c) 2021
+Copyright (c) 2026 Wisdom Ekeh
+
+This package is a rewrite of safe_device_check, which was a fork of safe_device.
+The MIT notices of both predecessors are retained below as that license
+requires.
+
+Copyright (c) 2021 Raj Yadav          (safe_device_check)
+Copyright (c) 2020 Ufuk Zimmerman     (safe_device)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

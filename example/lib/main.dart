@@ -1,158 +1,191 @@
+import 'package:device_integrity_check/device_integrity_check.dart';
 import 'package:flutter/material.dart';
-import 'package:safe_device_check/device_check.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() => runApp(const ExampleApp());
+
+class ExampleApp extends StatelessWidget {
+  const ExampleApp({super.key});
+
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        title: 'Device integrity',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1F5F8B)),
+          useMaterial3: true,
+        ),
+        home: const IntegrityPage(),
+      );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class IntegrityPage extends StatefulWidget {
+  const IntegrityPage({super.key});
 
-  // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
+  State<IntegrityPage> createState() => _IntegrityPageState();
+}
+
+class _IntegrityPageState extends State<IntegrityPage> {
+  // Probing costs real work on the platform thread — a full root scan was
+  // measured at 1.8 seconds on a cold start. Hold one future and resolve it
+  // once, rather than calling the getters from build(): a FutureBuilder whose
+  // `future` is created inline re-runs the whole scan on every rebuild, which
+  // is what the previous version of this example demonstrated by accident.
+  late Future<IntegrityReport> _report;
+
+  @override
+  void initState() {
+    super.initState();
+    _report = _evaluate();
   }
-}
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  Future<IntegrityReport> _evaluate() => DeviceIntegrity(
+        onError: (signal, error, stackTrace) {
+          debugPrint(
+            'probe ${signal?.name ?? 'platformVersion'} failed: $error',
+          );
+        },
+      ).evaluate();
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
+  void _refresh() {
+    // Start the work first, then assign inside setState. An arrow body here
+    // would return the assignment's value — a Future — which setState rejects.
+    final next = _evaluate();
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      _report = next;
     });
   }
 
   @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Device integrity'),
+          actions: [
+            IconButton(
+              onPressed: _refresh,
+              icon: const Icon(Icons.refresh),
+              tooltip: 'Re-run checks',
             ),
-            FutureBuilder(
-                future: DeviceCheck.isInstalledOnExternalStorage,
-                initialData: false,
-                builder: (context, snapshot) {
-                  return Text(
-                    'isInstalledOnExternalStorage:: ${snapshot.data ?? false}',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  );
-                }),
-            FutureBuilder(
-                future: DeviceCheck.isEmulator,
-                initialData: false,
-                builder: (context, snapshot) {
-                  return Text(
-                    'isEmulator:: ${snapshot.data ?? false}',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  );
-                }),
-            FutureBuilder(
-                future: DeviceCheck.isInstalledOnExternalStorage,
-                initialData: false,
-                builder: (context, snapshot) {
-                  return Text(
-                    'isInstalledOnExternalStorage:: ${snapshot.data ?? false}',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  );
-                }),
-            FutureBuilder(
-                future: DeviceCheck.isRooted,
-                initialData: false,
-                builder: (context, snapshot) {
-                  return Text(
-                    'isRooted:: ${snapshot.data ?? false}',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  );
-                }),
           ],
         ),
+        body: FutureBuilder<IntegrityReport>(
+          future: _report,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return _Message(
+                icon: Icons.error_outline,
+                text: 'evaluate() threw, which it should never do:\n'
+                    '${snapshot.error}',
+              );
+            }
+            return _ReportView(report: snapshot.data!);
+          },
+        ),
+      );
+}
+
+class _ReportView extends StatelessWidget {
+  const _ReportView({required this.report});
+
+  final IntegrityReport report;
+
+  @override
+  Widget build(BuildContext context) => ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text(
+            report.platformVersion ?? 'platform version unavailable',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            report.isComplete
+                ? 'All checks ran.'
+                : 'Some checks could not run — the booleans below are a '
+                    'partial answer.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 16),
+          for (final signal in IntegritySignal.values)
+            _SignalTile(
+              signal: signal,
+              detected: report.detected.contains(signal),
+              unavailable: report.unavailable.contains(signal),
+            ),
+        ],
+      );
+}
+
+class _SignalTile extends StatelessWidget {
+  const _SignalTile({
+    required this.signal,
+    required this.detected,
+    required this.unavailable,
+  });
+
+  final IntegritySignal signal;
+  final bool detected;
+  final bool unavailable;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    // Three outcomes, not two: "could not be checked" is deliberately distinct
+    // from "not detected", because an unprobed signal says nothing about the
+    // device and must not read as a clean result.
+    final IconData icon;
+    final Color color;
+    final String label;
+    if (unavailable) {
+      icon = Icons.help_outline;
+      color = scheme.outline;
+      label = 'could not be checked';
+    } else if (detected) {
+      icon = Icons.warning_amber_rounded;
+      color = scheme.error;
+      label = 'detected';
+    } else {
+      icon = Icons.check_circle_outline;
+      color = scheme.primary;
+      label = 'not detected';
+    }
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: Icon(icon, color: color),
+        title: Text(signal.name),
+        subtitle: Text(label),
+        trailing: Text(
+          signal.methodName,
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+}
+
+class _Message extends StatelessWidget {
+  const _Message({required this.icon, required this.text});
+
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 40),
+              const SizedBox(height: 12),
+              Text(text, textAlign: TextAlign.center),
+            ],
+          ),
+        ),
+      );
 }

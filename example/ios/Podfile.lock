@@ -1,0 +1,28 @@
+PODS:
+  - device_integrity_check (1.0.0):
+    - Flutter
+  - Flutter (1.0.0)
+  - integration_test (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - device_integrity_check (from `.symlinks/plugins/device_integrity_check/ios`)
+  - Flutter (from `Flutter`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
+
+EXTERNAL SOURCES:
+  device_integrity_check:
+    :path: ".symlinks/plugins/device_integrity_check/ios"
+  Flutter:
+    :path: Flutter
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
+
+SPEC CHECKSUMS:
+  device_integrity_check: 19e2947f34f5f8cbe6bdb9ad8ee2fcbfc5374c7f
+  Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
+  integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
+
+PODFILE CHECKSUM: 0e525152e3ec397947996fbf92d176f885bd8b2a
+
+COCOAPODS: 1.17.0

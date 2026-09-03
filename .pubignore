@@ -1,0 +1,37 @@
+# NOTE: when this file exists, pub ignores .gitignore entirely — so every
+# generated or machine-local path must be repeated here, not just the
+# contributor-only ones.
+
+# Build output and tool caches
+build/
+.dart_tool/
+**/build/
+**/.dart_tool/
+.gradle/
+**/.gradle/
+
+# Example: platform runners are not useful to consumers of the package.
+# lib/, test/ and integration_test/ are kept — they are the documented usage.
+example/android/
+example/ios/
+example/linux/
+example/macos/
+example/windows/
+example/web/
+example/.metadata
+example/.flutter-plugins
+example/.flutter-plugins-dependencies
+example/pubspec.lock
+
+# Generated plugin registration
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Contributor-only
+.github/
+.metadata
+*.iml
+*.iws
+.idea/
+.vscode/
+.DS_Store

@@ -1,26 +1,39 @@
-name: safe_device_check
-description: A flutter plugin for safe device check
-version: 0.0.2+4
+name: device_integrity_check
+description: >-
+  Root, jailbreak, emulator and developer-mode detection for Flutter. Reports
+  each signal separately and tells you which checks could not run, so a failed
+  probe is never mistaken for a clean device.
+version: 1.0.0
 
-homepage: https://github.com/rajyadavnp/safe_device_check
+repository: https://github.com/wiseminds/device_integrity_check
+issue_tracker: https://github.com/wiseminds/device_integrity_check/issues
+
+topics:
+  - security
+  - root-detection
+  - jailbreak
+  - emulator
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
-  flutter: ">=1.20.0"
+  sdk: ">=3.3.0 <4.0.0"
+  flutter: ">=3.16.0"
 
 dependencies:
   flutter:
     sdk: flutter
+  plugin_platform_interface: ^2.1.8
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_lints: ^6.0.0
 
 flutter:
   plugin:
     platforms:
       android:
-        package: com.glieselabs.device_check
-        pluginClass: DeviceCheckPlugin
+        package: io.github.wiseminds.device_integrity_check
+        pluginClass: DeviceIntegrityPlugin
       ios:
-        pluginClass: SafeDevicePlugin
+        pluginClass: DeviceIntegrityPlugin
+        sharedDarwinSource: false
